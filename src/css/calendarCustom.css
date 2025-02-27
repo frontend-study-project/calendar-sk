@@ -1,0 +1,28 @@
+.react-calendar {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.react-calendar button {
+  border-top: 1px solid #e2e2e2;
+}
+.react-calendar__navigation button {
+  border: none;
+}
+.react-calendar__viewContainer {
+  height: calc(100% - 60px);
+}
+.react-calendar__month-view,
+.react-calendar__month-view > div,
+.react-calendar__month-view > div > div {
+  height: 100%;
+}
+
+.react-calendar__month-view__days {
+  height: calc(100% - 30px);
+}
+.react-calendar__tile {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+}
