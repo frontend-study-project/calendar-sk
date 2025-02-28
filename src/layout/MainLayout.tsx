@@ -5,10 +5,11 @@ import MainNav from './MainNav';
 const MainLayout = () => (
   <>
     <MainHeader />
-    <div className="flex h-[calc(100dvh-60px)]">
+    <main className="flex h-[calc(100dvh-60px)]">
       <MainNav />
       <Outlet />
-    </div>
+    </main>
+    <div id="modal"></div>
   </>
 );
 export default MainLayout;
