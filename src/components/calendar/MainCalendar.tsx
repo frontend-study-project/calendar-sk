@@ -2,52 +2,111 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useState } from 'react';
-import ModalAddOption from '../modal/ModalAddOption';
+import ModalSelectOption from '../modal/ModalSelectOption';
+import { modalInfoType, newSchedule } from '../../types/calendar';
+import { nanoid } from 'nanoid';
+import ModalAddSchedule from '../modal/ModalAddSchedule';
+import ModalDimmed from '../modal/ModalDimmed';
+
+const ResetModalInfo = {
+  modal: null,
+  id: '',
+  title: '',
+  x: '',
+  y: '',
+  start: null,
+  end: null,
+};
 
 const MainCalendar = () => {
-  const [events, setEvents] = useState({
-    isMoadlOpen: false,
-    x: '',
-    y: '',
-  });
+  const [modalInfo, setModalInfo] = useState<modalInfoType>(ResetModalInfo);
+
+  const [events, setEvents] = useState<newSchedule[]>([]);
+
   const handleDayCellContent = (arg) => {
     const dayNumber = arg.dayNumberText.replace('일', '');
     return dayNumber;
   };
 
   const handleDateSelect = (selectInfo) => {
-    // const title = prompt('새 일정의 제목을 입력하세요:');
-    // if (title) {
-    //   const newEvent = {
-    //     id: createEventId(), // 고유 ID 생성
-    //     title,
-    //     start: selectInfo.startStr,
-    //     end: selectInfo.endStr,
-    //     allDay: selectInfo.allDay,
-    //   };
-    //   setEvents([...events, newEvent]);
-    // }
-    // // 선택 해제 (중요: 다음 선택을 위해)
-    // selectInfo.view.calendar.unselect();
-    console.log();
-    setEvents({
-      isMoadlOpen: true,
+    const id = nanoid();
+
+    setEvents((prev) => {
+      return [
+        ...prev,
+        {
+          id: id,
+          title: '제목',
+          start: selectInfo.start,
+          end: selectInfo.end,
+          allDay: selectInfo.allDay,
+        },
+      ];
+    });
+
+    setModalInfo({
+      modal: 'first',
+      id: id,
+      title: '',
       x: selectInfo.jsEvent.clientX,
       y: selectInfo.jsEvent.clientY,
+      start: selectInfo.start,
+      end: selectInfo.end,
     });
   };
-  const handleEventClick = (clickInfo) => {
-    console.log(clickInfo);
+
+  const handleSelectScheduleType = () => {
+    setModalInfo((prev) => ({
+      ...prev,
+      modal: 'second',
+    }));
   };
 
-  const handleModalClose = () => {
-    setEvents({
-      isMoadlOpen: false,
-      x: '',
-      y: '',
+  const handleAddScheduleDetail = (eventId: string, title: string) => {
+    const newEvent = events.map((event) => {
+      if (event.id === eventId) {
+        return {
+          ...event,
+          title,
+        };
+      } else {
+        return event;
+      }
+    });
+    setEvents(newEvent);
+  };
+
+  const handleEventClick = (clickInfo) => {
+    setModalInfo((prev) => ({
+      ...prev,
+      modal: 'second',
+      id: clickInfo.event._def.publicId,
+      title: clickInfo.event._def.title,
+      start: clickInfo.event._instance.range.start,
+      end: clickInfo.event._instance.range.end,
+    }));
+  };
+
+  const handleEventDidMount = (info) => {
+    info.el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+
+      const deleteId = info.event._def.publicId;
+
+      const check = confirm('삭제하시겠습니까?');
+
+      if (check) {
+        const filteredEvents = events.filter((event) => event.id !== deleteId);
+
+        setEvents(filteredEvents);
+      }
     });
   };
   console.log(events);
+
+  const handleModalClose = () => {
+    setModalInfo(ResetModalInfo);
+  };
 
   return (
     <section className="w-[calc(100%-300px)]">
@@ -64,22 +123,27 @@ const MainCalendar = () => {
         dayCellContent={handleDayCellContent}
         selectable={true}
         select={handleDateSelect}
-        //events={events}  상태로 관리되는 이벤트 배열
-        eventClick={handleEventClick} // 이벤트 클릭 핸들러
+        events={events}
+        eventClick={handleEventClick}
         editable={true}
-        // eventSources={ 구글캘린더로 공휴일 받아오기
-        //   googleCalendarId: '',
-        //   backgroundColor: 'transparent',
-        //   borderColor: 'transparent',
-        //   className: 'kr-holiday',
-        //   textColor: 'red',
-        // }
+        eventDidMount={handleEventDidMount}
       />
-      {events.isMoadlOpen && (
-        <ModalAddOption
-          clientX={events.x}
-          clientY={events.y}
-          onModalClose={handleModalClose}
+      {modalInfo.modal && <ModalDimmed onModalClose={handleModalClose} />}
+      {modalInfo.modal === 'first' && (
+        <ModalSelectOption
+          clientX={modalInfo.x}
+          clientY={modalInfo.y}
+          onSelectScheduleType={handleSelectScheduleType}
+        />
+      )}
+      {modalInfo.modal === 'second' && (
+        <ModalAddSchedule
+          prevTitle={modalInfo.title}
+          eventId={modalInfo.id}
+          start={modalInfo.start}
+          end={modalInfo.end}
+          onAddScheduleDetail={handleAddScheduleDetail}
+          onClose={handleModalClose}
         />
       )}
     </section>
