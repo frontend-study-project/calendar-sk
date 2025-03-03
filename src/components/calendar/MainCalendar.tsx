@@ -1,12 +1,13 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ModalSelectOption from '../modal/ModalSelectOption';
-import { modalInfoType, newSchedule } from '../../types/calendar';
+import { ModalInfoType, NewScheduleType } from '../../types/calendar';
 import { nanoid } from 'nanoid';
 import ModalAddSchedule from '../modal/ModalAddSchedule';
 import ModalDimmed from '../modal/ModalDimmed';
+import { useCalendarStore } from '../../store';
 
 const ResetModalInfo = {
   modal: null,
@@ -19,9 +20,9 @@ const ResetModalInfo = {
 };
 
 const MainCalendar = () => {
-  const [modalInfo, setModalInfo] = useState<modalInfoType>(ResetModalInfo);
+  const [modalInfo, setModalInfo] = useState<ModalInfoType>(ResetModalInfo);
 
-  const [events, setEvents] = useState<newSchedule[]>([]);
+  const { events, setEvent, updateEvent, deleteEvent } = useCalendarStore();
 
   const handleDayCellContent = (arg) => {
     const dayNumber = arg.dayNumberText.replace('일', '');
@@ -31,17 +32,12 @@ const MainCalendar = () => {
   const handleDateSelect = (selectInfo) => {
     const id = nanoid();
 
-    setEvents((prev) => {
-      return [
-        ...prev,
-        {
-          id: id,
-          title: '제목',
-          start: selectInfo.start,
-          end: selectInfo.end,
-          allDay: selectInfo.allDay,
-        },
-      ];
+    setEvent({
+      id: id,
+      title: '',
+      start: selectInfo.start,
+      end: selectInfo.end,
+      allDay: selectInfo.allDay,
     });
 
     setModalInfo({
@@ -63,17 +59,7 @@ const MainCalendar = () => {
   };
 
   const handleAddScheduleDetail = (eventId: string, title: string) => {
-    const newEvent = events.map((event) => {
-      if (event.id === eventId) {
-        return {
-          ...event,
-          title,
-        };
-      } else {
-        return event;
-      }
-    });
-    setEvents(newEvent);
+    updateEvent(eventId, title);
   };
 
   const handleEventClick = (clickInfo) => {
@@ -96,17 +82,16 @@ const MainCalendar = () => {
       const check = confirm('삭제하시겠습니까?');
 
       if (check) {
-        const filteredEvents = events.filter((event) => event.id !== deleteId);
-
-        setEvents(filteredEvents);
+        deleteEvent(deleteId);
       }
     });
   };
-  console.log(events);
 
   const handleModalClose = () => {
     setModalInfo(ResetModalInfo);
   };
+
+  console.log(events);
 
   return (
     <section className="w-[calc(100%-300px)]">

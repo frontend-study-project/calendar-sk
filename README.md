@@ -38,12 +38,53 @@
    그렇다면 fullCalendar로 생성해둔 여러 일정중 어떤 일정을 우클릭했을때 이벤트 등록을 어떻게 할 수 있는걸까?
 
    1-1. fullCalendar 컴포넌트에 eventDidMount 속성에 handleEventDidMount를 전달해줌
-   `       <FullCalendar
-        ...
-        eventDidMount={handleEventDidMount}
-      />
-       `
 
-   1-2. handleEventDidMount 함수에서 우클릭 관련 이벤트를 contextmenu 이벤트 리스너를 생성해서 정리해두면 된다.
+   ```<FullCalendar
+   ...
+   eventDidMount={handleEventDidMount}
+   />
+   ```
 
-2. 새로고침해도 등록해놨던 일정 보여주기
+1-2. handleEventDidMount 함수에서 우클릭 관련 이벤트를 contextmenu 이벤트 리스너를 생성해서 정리해두면 된다.
+
+## DAY04
+
+1. 새고고침해도 일정 유지되게 하기
+   1-1. 문제 : fullCalendar 라이브러리와 zustand를 함께 사용하면서 타입 충돌이 일어나면서 어려움이 있었다.
+   캘린더 이벤트 타입을 아래와 같이 지정해두었으나,
+
+````export type NewScheduleType = {
+   id: string;
+   title: string;
+   start: Date;
+   end: Date;
+   allDay: boolean;
+}; ```
+
+zustand로 상태를 관리하려고 처음 데이터 셋팅을 할때 start, end는 Date 타입을 갖고 있는데 어떻게 초기 상태를 둬야할지 고민이였다. Null, undefined, unknown으로 지정해봤지만 fullCaledner컴포넌트에 events로 속성을 넘겨줄때 에러가 났다.
+
+````
+
+const storeCreator: StateCreator<CalendarStore> = (set) => ({
+events: {
+id: '',
+title: '',
+start: ?,
+end: ?,
+allDay: false,
+},
+setCalendar: (newData) => {
+set((state) => ({
+events: { ...state.events, ...newData },
+}));
+},
+});
+
+```
+
+1-2. 해결 : 찾아본 결과, FullCalendar의 EventInput 타입은 null을 허용하지 않고
+DateInput | undefined를 사용한다고 한다.
+
+
+
+```

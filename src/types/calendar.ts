@@ -1,12 +1,14 @@
-export type newSchedule = {
+import { DateInput } from '@fullcalendar/core';
+
+export type NewScheduleType = {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
+  start: DateInput;
+  end: DateInput;
   allDay: boolean;
 };
 
-export type modalInfoType = {
+export type ModalInfoType = {
   modal: string | null;
   id: string;
   title: string;
