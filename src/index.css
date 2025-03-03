@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @import './css/calendarCustom.css';
 
+@theme {
+  --color-primary: #bd83ce;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

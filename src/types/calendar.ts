@@ -14,6 +14,7 @@ export type ModalInfoType = {
   title: string;
   x: string;
   y: string;
+  backgroundColor?: string;
   start: Date | null;
   end: Date | null;
 };

@@ -1,9 +1,9 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ModalSelectOption from '../modal/ModalSelectOption';
-import { ModalInfoType, NewScheduleType } from '../../types/calendar';
+import { ModalInfoType } from '../../types/calendar';
 import { nanoid } from 'nanoid';
 import ModalAddSchedule from '../modal/ModalAddSchedule';
 import ModalDimmed from '../modal/ModalDimmed';
@@ -13,6 +13,7 @@ const ResetModalInfo = {
   modal: null,
   id: '',
   title: '',
+  backgroundColor: '#BD83CE',
   x: '',
   y: '',
   start: null,
@@ -91,14 +92,13 @@ const MainCalendar = () => {
     setModalInfo(ResetModalInfo);
   };
 
-  console.log(events);
-
   return (
     <section className="w-[calc(100%-300px)]">
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         height="100%"
+        timeZone="Asia/Seoul"
         locale="kr"
         headerToolbar={{
           left: 'title prev,next today',
@@ -111,6 +111,7 @@ const MainCalendar = () => {
         events={events}
         eventClick={handleEventClick}
         editable={true}
+        eventColor="#BD83CE"
         eventDidMount={handleEventDidMount}
       />
       {modalInfo.modal && <ModalDimmed onModalClose={handleModalClose} />}
